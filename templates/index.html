@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Webhook Events</title>
+  <script>
+    async function loadEvents() {
+      const response = await fetch("/events");
+      const data = await response.json();
+      const container = document.getElementById("events");
+      container.innerHTML = "";
+      data.reverse().forEach(event => {
+        let line = "";
+        const time = new Date(event.timestamp).toUTCString();
+        if (event.type === "push") {
+          line = `${event.author} pushed to ${event.to_branch} on ${time}`;
+        } else if (event.type === "pull_request") {
+          line = `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${time}`;
+        } else if (event.type === "merge") {
+          line = `${event.author} merged branch ${event.from_branch} to ${event.to_branch} on ${time}`;
+        }
+        const el = document.createElement("p");
+        el.textContent = line;
+        container.appendChild(el);
+      });
+    }
+    setInterval(loadEvents, 15000);
+    window.onload = loadEvents;
+  </script>
+</head>
+<body>
+  <h2>GitHub Events</h2>
+  <div id="events"></div>
+</body>
+</html>
